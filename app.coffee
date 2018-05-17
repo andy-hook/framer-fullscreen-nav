@@ -101,14 +101,24 @@ for item, index in [inferno, brandwatch, vizia, cymbiosis, monster, sketchbook]
 # Social interactions	
 for socialButton, index in [twitter, dribbble, instagram, github, linkedin]
 	socialText = socialButton.selectChild('text')
+	socialText.animationOptions =
+		time: .4
 	
-	socialButton.height = socialText.height + 15
-# 	socialButton.backgroundColor = 'red'
+	socialText.states.initial =
+		opacity: .4
+		
+	socialText.states.hovered =
+		opacity: 1
+		
+	socialText.stateSwitch('initial')
+	
+	socialButton.height = socialText.height + 20
 	socialButton.clip = true
+	
 		
 	# 	Moving underline
 	underline = new Layer
-		backgroundColor: '1C1B26'
+		backgroundColor: 'E8E8EA'
 		parent: socialButton
 		name: 'underline'
 		height: 2
@@ -118,7 +128,8 @@ for socialButton, index in [twitter, dribbble, instagram, github, linkedin]
 		index: 0
 		originX: 1
 		animationOptions: 
-			time: .5
+			time: .4
+			curve: Spring(mass: .9, velocity: 1, damping: .9)
 	
 	underline.states.left =
 			x: Align.left(-socialButton.width)
@@ -137,23 +148,21 @@ for socialButton, index in [twitter, dribbble, instagram, github, linkedin]
 	
 	socialButton.on Events.MouseOver, (e, layer) ->
 		thisUnderline = this.selectChild('underline')
+		thisText = this.selectChild('text')
 		
-		if e.point.x > (socialButton.width / 2)
-			thisUnderline.stateSwitch('right')
-			
-		else
-			thisUnderline.stateSwitch('left')
-			
+		thisText.animate('hovered')
+		
+		thisUnderline.stateSwitch('left')
 		thisUnderline.animate('hovered')
 
 	socialButton.on Events.MouseOut, (e, layer) ->
 		thisUnderline = this.selectChild('underline')
 		
-		if e.point.x > (socialButton.width / 2)
-			thisUnderline.animate('right')
-			
-		else
-			thisUnderline.animate('left')
+		thisText = this.selectChild('text')
+		
+		thisText.animate('initial')
+		
+		thisUnderline.animate('right')
 
 		
 		
