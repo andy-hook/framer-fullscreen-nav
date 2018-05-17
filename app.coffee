@@ -6,23 +6,22 @@ Framer.Device.customize
 	deviceImageWidth: 1700
 	deviceImageHeight: 956
 	devicePixelRatio: 1
-	
-navItems = [inferno, brandwatch, vizia, cymbiosis, monster, sketchbook]
-	
-for item, index in navItems
+
+# Main navigation interactions	
+for item, index in [inferno, brandwatch, vizia, cymbiosis, monster, sketchbook]
 	
 # 	Item text
 	itemText = item.selectChild('text')
 	itemText.index = 100
 	itemText.animationOptions =
 		curve: Spring(damping: .8, mass: .9, velocity: .1)
-	
+		
 	itemText.states.first =
 		x: Align.right(-25)
 		opacity: .2
 		animationOptions:
 			time: 1
-		
+
 	itemText.states.hovered =
 		x: Align.right(-10)
 		opacity: 1
@@ -71,9 +70,6 @@ for item, index in navItems
 	
 	slice.stateSwitch('first')
 	
-		
-for item, index in navItems
-
 	item.on Events.MouseOver, (event, layer) ->
 		itemSlice = this.selectChild('movingSlice')
 		itemText = this.selectChild('text')
@@ -100,11 +96,64 @@ for item, index in navItems
 		
 		itemSlice.animate('out')
 		itemText.animate('first')
+	
+	
+# Social interactions	
+for socialButton, index in [twitter, dribbble, instagram, github, linkedin]
+	socialText = socialButton.selectChild('text')
+	
+	socialButton.height = socialText.height + 15
+# 	socialButton.backgroundColor = 'red'
+	socialButton.clip = true
 		
+	# 	Moving underline
+	underline = new Layer
+		backgroundColor: '1C1B26'
+		parent: socialButton
+		name: 'underline'
+		height: 2
+		width: socialButton.width
+		y: Align.bottom
+		x: Align.left
+		index: 0
+		originX: 1
+		animationOptions: 
+			time: .5
+	
+	underline.states.left =
+			x: Align.left(-socialButton.width)
+			
+	underline.states.right =
+			x: Align.left(socialButton.width)
+			
+	underline.states.hovered =
+			x: Align.left
+	
+	underline.stateSwitch('left')
+	
+# 	Don't bubble events
+	underline.ignoreEvents = true
+	socialText.ignoreEvents = true
+	
+	socialButton.on Events.MouseOver, (e, layer) ->
+		thisUnderline = this.selectChild('underline')
 		
+		if e.point.x > (socialButton.width / 2)
+			thisUnderline.stateSwitch('right')
+			
+		else
+			thisUnderline.stateSwitch('left')
+			
+		thisUnderline.animate('hovered')
+
+	socialButton.on Events.MouseOut, (e, layer) ->
+		thisUnderline = this.selectChild('underline')
 		
-		
-		
-		
+		if e.point.x > (socialButton.width / 2)
+			thisUnderline.animate('right')
+			
+		else
+			thisUnderline.animate('left')
+
 		
 		
