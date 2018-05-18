@@ -9,6 +9,65 @@ Framer.Device.customize
 
 navItems = [inferno, brandwatch, vizia, cymbiosis, monster, sketchbook]
 
+currentActive = []
+allowShow = false;
+navOpen = false;
+
+# Topbar
+# ------------------------------------------------------------------
+jobTitle.states =
+	dark:
+		color: '#7F8188'
+		animationOptions:
+			time: 0
+	light:
+		color: '7F8188'
+		animationOptions:
+			time: 0
+
+jobTitle.stateSwitch('dark')
+
+changeJobTitle = () ->
+	Utils.delay .4, ->
+		if !allowShow
+			jobTitle.animate('dark')
+			
+
+logo.states =
+	dark:
+		color: '#F6F6F7'
+		animationOptions:
+			time: 0
+	light:
+		color: '2C2C37'
+		animationOptions:
+			time: 0
+
+logo.stateSwitch('dark')
+
+changeLogo = () ->
+	Utils.delay .39, ->
+		if !allowShow
+			logo.animate('dark')
+
+border.states =
+	dark:
+		color: '#3E3E47'
+		animationOptions:
+			time: 0
+	light:
+		color: 'E8E8EA'
+		animationOptions:
+			time: 0
+			delay: 0
+
+border.stateSwitch('dark')
+
+changeBorder = () ->
+	Utils.delay .27, ->
+		if !allowShow
+			border.animate('dark')
+
 
 
 # Main navigation interactions
@@ -175,28 +234,27 @@ for socialButton, index in [twitter, dribbble, instagram, github, linkedin]
 
 reversedItems = navItems.reverse()
 navItemDelayIn = .05
-navItemStartIn = .02
+navItemStartIn = .05
 
-navItemDelayOut = .05
+navItemDelayOut = .0
 for item, index in reversedItems
 	startingPos = item.y
 	
 	item.states.visible =
 		opacity: 1
 		y: startingPos
+		animationOptions:
+			time: .9
+			curve: Bezier(.05,1.05,.58,1.01)
 	
 	item.states.hidden = 
 		opacity: 0
-		y: startingPos - (index + 5 * 35)
+		y: startingPos - (index + 5 * 50)
+		animationOptions:
+			time: .2
+			curve: Bezier(.05,1.05,.58,1.01)
 	
 	item.stateSwitch('hidden')
-	item.animationOptions = 
-		time: .9
-		curve: Bezier(.05,1.05,.58,1.01)
-
-currentActive = []
-allowShow = false;
-navOpen = false;
 
 # Setup navicon
 navicon.states.closed =
@@ -229,22 +287,101 @@ hideNavItem = (item, i) ->
 
 
 	
-	
-	
+# Main title open / close
+# ------------------------------------------------------------------
+mainTitle.states =
+	hidden:
+		opacity: 0
+		y: mainTitle.y - 100
+		animationOptions:
+			time: .1
+	visible:
+		opacity: 1
+		y: mainTitle.y
+		animationOptions:
+			time: .5
+			curve: Bezier(.06,.31,.32,1)
+
+mainTitle.stateSwitch('hidden')
+
+showMainTitle = () ->
+	Utils.delay .15, ->
+		if allowShow
+			mainTitle.animate('visible')
+
+
+# Aux details open / close
+# ------------------------------------------------------------------
+auxDetails.states =
+	hidden:
+		opacity: 0
+		y: auxDetails.y - 75
+		animationOptions:
+			time: .1
+	visible:
+		opacity: 1
+		y: auxDetails.y
+		animationOptions:
+			time: .5
+
+auxDetails.stateSwitch('hidden')
+
+showAux = () ->
+	Utils.delay .2, ->
+		if allowShow
+			auxDetails.animate('visible')
+
+
 	
 # Nav items open / close
 # ------------------------------------------------------------------
-drawer.states.closed =
-	y: -drawer.height
 
-drawer.states.open =
-	y: 0
-	animationOptions:
-		time: .7
-		curve: Bezier(.09,.68,.27,.99)
+drawer.states =
+	closed:
+		y: -drawer.height
+		animationOptions:
+			time: .8
+			curve: Bezier(.09,.68,.27,.99)
+	open:
+		y: 0
+		animationOptions:
+			time: .8
+			curve: Bezier(.09,.68,.27,.99)
 
 drawer.stateSwitch('closed')
 
+drawerAngle = new Layer
+	width: drawer.width
+	height: 200
+	y: Align.bottom
+	backgroundColor: 'red'
+	opacity: 0
+	originX: 0
+	originY: 1
+	
+drawerAngle.states =
+	one:
+		rotation: 0
+	two:
+		rotation: 20
+	three:
+		rotation: 0
+	
+drawer.addChild(drawerAngle)
+
+drawerAngle.stateSwitch('one')
+
+cycleAngle = (layer) ->
+	layer.animate('two')
+	
+	layer.on Events.AnimationEnd, -> 
+		layer.animate('three')
+		layer.off Events.AnimationEnd
+		
+		layer.on Events.AnimationEnd, ->
+			layer.stateSwitch('one')
+			layer.off Events.AnimationEnd
+	
 	
 # Nav toggle
 # ------------------------------------------------------------------
@@ -254,6 +391,12 @@ toggleNav = () ->
 		navOpen = true
 		
 		drawer.animate('open')
+		showMainTitle()
+		showAux()
+		logo.animate('light')
+		jobTitle.animate('light')
+		border.animate('light')
+		
 		for item, index in navItems
 			showNavItem(item, index)
 	else 
@@ -261,8 +404,13 @@ toggleNav = () ->
 		navOpen = false
 		
 		drawer.animate('closed')
-# 		Animate in reverse
-# 		currentActive.reverse()
+		
+		changeLogo()
+		changeJobTitle()
+		changeBorder()
+		
+		mainTitle.animate('hidden')
+		auxDetails.animate('hidden')
 		
 		for item, index in currentActive
 			hideNavItem(item, index)
