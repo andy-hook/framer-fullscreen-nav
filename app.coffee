@@ -7,9 +7,14 @@ Framer.Device.customize
 	deviceImageHeight: 956
 	devicePixelRatio: 1
 
-# Main navigation interactions	
-for item, index in [inferno, brandwatch, vizia, cymbiosis, monster, sketchbook]
-	
+navItems = [inferno, brandwatch, vizia, cymbiosis, monster, sketchbook]
+
+
+
+# Main navigation interactions
+# ------------------------------------------------------------------
+for item, index in navItems
+
 # 	Item text
 	itemText = item.selectChild('text')
 	itemText.index = 100
@@ -164,5 +169,105 @@ for socialButton, index in [twitter, dribbble, instagram, github, linkedin]
 		
 		thisUnderline.animate('right')
 
+
+# Nav items open / close
+# ------------------------------------------------------------------
+
+reversedItems = navItems.reverse()
+navItemDelayIn = .05
+navItemStartIn = .02
+
+navItemDelayOut = .05
+for item, index in reversedItems
+	startingPos = item.y
+	
+	item.states.visible =
+		opacity: 1
+		y: startingPos
+	
+	item.states.hidden = 
+		opacity: 0
+		y: startingPos - (index + 5 * 35)
+	
+	item.stateSwitch('hidden')
+	item.animationOptions = 
+		time: .9
+		curve: Bezier(.05,1.05,.58,1.01)
+
+currentActive = []
+allowShow = false;
+navOpen = false;
+
+# Setup navicon
+navicon.states.closed =
+	opacity: .3
+	
+navicon.states.open =
+	opacity: 1
+
+navicon.stateSwitch('closed')
+
+# Show
+showNavItem = (item, i) ->
+
+	Utils.delay i * navItemDelayIn + navItemStartIn, ->
+		if allowShow
+			item.animate('visible')
+			
+# 			Add to active array after visible
+			currentActive.push(item)
+
+# Hide
+hideNavItem = (item, i) ->
+	
+	Utils.delay i * navItemDelayOut, ->
+			item.animate('hidden')
+			
+# 			Remove item from array after being hidden
+			indexOf = currentActive.indexOf(item)
+			currentActive.splice(indexOf, 1)
+
+
+	
+	
+	
+	
+# Nav items open / close
+# ------------------------------------------------------------------
+drawer.states.closed =
+	y: -drawer.height
+
+drawer.states.open =
+	y: 0
+	animationOptions:
+		time: .7
+		curve: Bezier(.09,.68,.27,.99)
+
+drawer.stateSwitch('closed')
+
+	
+# Nav toggle
+# ------------------------------------------------------------------
+toggleNav = () ->
+	if !navOpen
+		allowShow = true
+		navOpen = true
 		
+		drawer.animate('open')
+		for item, index in navItems
+			showNavItem(item, index)
+	else 
+		allowShow = false
+		navOpen = false
 		
+		drawer.animate('closed')
+# 		Animate in reverse
+# 		currentActive.reverse()
+		
+		for item, index in currentActive
+			hideNavItem(item, index)
+
+# Menu open / close
+navicon.on Events.MouseDown, (e, layer) ->
+	toggleNav()
+	
