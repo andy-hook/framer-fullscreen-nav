@@ -233,28 +233,34 @@ for socialButton, index in [twitter, dribbble, instagram, github, linkedin]
 # ------------------------------------------------------------------
 
 reversedItems = navItems.reverse()
-navItemDelayIn = .05
-navItemStartIn = .05
+navItemDelayIn = .04
+navItemStartIn = .0
 
 navItemDelayOut = .0
 for item, index in reversedItems
-	startingPos = item.y
+	
+	item.states.initial = 
+		opacity: 0
+		y: item.y - (index + 7 * 80)
+		animationOptions:
+			time: .2
+			curve: Bezier(.05,1.05,.58,1.01)
 	
 	item.states.visible =
 		opacity: 1
-		y: startingPos
+		y: item.y
 		animationOptions:
 			time: .9
 			curve: Bezier(.05,1.05,.58,1.01)
 	
 	item.states.hidden = 
 		opacity: 0
-		y: startingPos - (index + 5 * 50)
+		y: item.y - 100
 		animationOptions:
-			time: .2
+			time: .3
 			curve: Bezier(.05,1.05,.58,1.01)
 	
-	item.stateSwitch('hidden')
+	item.stateSwitch('initial')
 
 # Setup navicon
 navicon.states.closed =
@@ -270,6 +276,7 @@ showNavItem = (item, i) ->
 
 	Utils.delay i * navItemDelayIn + navItemStartIn, ->
 		if allowShow
+			item.stateSwitch('initial')
 			item.animate('visible')
 			
 # 			Add to active array after visible
@@ -340,13 +347,13 @@ drawer.states =
 	closed:
 		y: -drawer.height
 		animationOptions:
-			time: .8
-			curve: Bezier(.09,.68,.27,.99)
+			time: .5
+# 			curve: Bezier(.09,.68,.27,.9)
 	open:
 		y: 0
 		animationOptions:
-			time: .8
-			curve: Bezier(.09,.68,.27,.99)
+			time: .5
+# 			curve: Bezier(.09,.68,.27,.9)
 
 drawer.stateSwitch('closed')
 
@@ -354,33 +361,55 @@ drawerAngle = new Layer
 	width: drawer.width
 	height: 200
 	y: Align.bottom
-	backgroundColor: 'red'
-	opacity: 0
-	originX: 0
-	originY: 1
-	
-drawerAngle.states =
-	one:
-		rotation: 0
-	two:
-		rotation: 20
-	three:
-		rotation: 0
-	
+
 drawer.addChild(drawerAngle)
-
-drawerAngle.stateSwitch('one')
-
-cycleAngle = (layer) ->
-	layer.animate('two')
 	
-	layer.on Events.AnimationEnd, -> 
-		layer.animate('three')
-		layer.off Events.AnimationEnd
-		
-		layer.on Events.AnimationEnd, ->
-			layer.stateSwitch('one')
-			layer.off Events.AnimationEnd
+drawerAngleInner = new Layer
+drawerAngle.addChild(drawerAngleInner)
+
+drawerAngleInner.props =
+	rotation: 0
+	width: drawerAngle.width * 2
+	height: drawerAngle.height * 3.5
+	y: Align.bottom
+	x: Align.center
+	backgroundColor: '#FBFCFC'
+
+			
+rotateAngleDown = () ->
+	drawerAngle.originX = 1
+	drawerAngle.originY = 1
+	
+	drawerAngle.animate
+		rotation: -20
+		options:
+			time: .2
+
+	Utils.delay .05, ->
+		if allowShow
+			drawerAngle.animate
+				rotation: 0
+				options:
+					time: .45
+			
+
+rotateAngleUp = () ->
+	drawerAngle.originX = 0
+	drawerAngle.originY = 1
+	
+	drawerAngle.animate
+		rotation: 20
+		options:
+			time: .2
+
+	Utils.delay .05, ->
+		if !allowShow
+			drawerAngle.animate
+				rotation: 0
+				options:
+					time: .45
+
+
 	
 	
 # Nav toggle
@@ -397,6 +426,9 @@ toggleNav = () ->
 		jobTitle.animate('light')
 		border.animate('light')
 		
+		rotateAngleDown()
+# 		drawerAngle.animate('rotated')
+		
 		for item, index in navItems
 			showNavItem(item, index)
 	else 
@@ -408,6 +440,9 @@ toggleNav = () ->
 		changeLogo()
 		changeJobTitle()
 		changeBorder()
+		
+		rotateAngleUp()
+# 		drawerAngle.animate('initial')
 		
 		mainTitle.animate('hidden')
 		auxDetails.animate('hidden')
