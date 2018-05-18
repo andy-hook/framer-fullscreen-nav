@@ -46,7 +46,7 @@ logo.states =
 logo.stateSwitch('dark')
 
 changeLogo = () ->
-	Utils.delay .39, ->
+	Utils.delay .3, ->
 		if !allowShow
 			logo.animate('dark')
 
@@ -55,19 +55,8 @@ border.states =
 		color: '#3E3E47'
 		animationOptions:
 			time: 0
-	light:
-		color: 'E8E8EA'
-		animationOptions:
-			time: 0
-			delay: 0
 
 border.stateSwitch('dark')
-
-changeBorder = () ->
-	Utils.delay .27, ->
-		if !allowShow
-			border.animate('dark')
-
 
 
 # Main navigation interactions
@@ -233,10 +222,11 @@ for socialButton, index in [twitter, dribbble, instagram, github, linkedin]
 # ------------------------------------------------------------------
 
 reversedItems = navItems.reverse()
-navItemDelayIn = .04
-navItemStartIn = .0
+navItemDelayIn = .02
+navItemStartIn = .05
 
 navItemDelayOut = .0
+navItemStartOut = .05
 for item, index in reversedItems
 	
 	item.states.initial = 
@@ -250,14 +240,14 @@ for item, index in reversedItems
 		opacity: 1
 		y: item.y
 		animationOptions:
-			time: .9
+			time: .6
 			curve: Bezier(.05,1.05,.58,1.01)
 	
 	item.states.hidden = 
 		opacity: 0
-		y: item.y - 100
+		y: item.y - 200
 		animationOptions:
-			time: .3
+			time: .5
 			curve: Bezier(.05,1.05,.58,1.01)
 	
 	item.stateSwitch('initial')
@@ -285,7 +275,7 @@ showNavItem = (item, i) ->
 # Hide
 hideNavItem = (item, i) ->
 	
-	Utils.delay i * navItemDelayOut, ->
+	Utils.delay i * navItemDelayOut  + navItemStartOut, ->
 			item.animate('hidden')
 			
 # 			Remove item from array after being hidden
@@ -343,17 +333,28 @@ showAux = () ->
 # Nav items open / close
 # ------------------------------------------------------------------
 
+overlay.states =
+	visible:
+		opacity: .5
+		animationOptions:
+			time: .3
+	hidden:
+		opacity: 0
+		animationOptions:
+			time: .3
+			delay: .1
+		
+overlay.stateSwitch('hidden')
+
 drawer.states =
 	closed:
 		y: -drawer.height
 		animationOptions:
 			time: .5
-# 			curve: Bezier(.09,.68,.27,.9)
 	open:
 		y: 0
 		animationOptions:
 			time: .5
-# 			curve: Bezier(.09,.68,.27,.9)
 
 drawer.stateSwitch('closed')
 
@@ -380,6 +381,8 @@ rotateAngleDown = () ->
 	drawerAngle.originX = 1
 	drawerAngle.originY = 1
 	
+	overlay.animate('visible')
+	
 	drawerAngle.animate
 		rotation: -20
 		options:
@@ -397,6 +400,8 @@ rotateAngleUp = () ->
 	drawerAngle.originX = 0
 	drawerAngle.originY = 1
 	
+	overlay.animate('hidden')
+	
 	drawerAngle.animate
 		rotation: 20
 		options:
@@ -410,8 +415,44 @@ rotateAngleUp = () ->
 					time: .45
 
 
+# Content hiding
+# ------------------------------------------------------------------
+hideContent = () ->
+	for headline, index in [headline_3, headline_2, headline_1]
+		headline.selectChild('text').animate
+			opacity: 0
+			y: Align.center(100 + (index * 10))
+			options:
+				time: .3
+				curve: Bezier(.05,1.05,.58,1.01)
+				
+	for thumb, index in [thumbnail_1, thumbnail_2]
+		thumb.selectChild('box').animate
+			opacity: 0
+			y: Align.center(300)
+			options:
+				time: .5
+				curve: Bezier(.05,1.05,.58,1.01)
+
+showContent = () ->
+	for headline, index in [headline_3, headline_2, headline_1]
+		headline.selectChild('text').animate
+			opacity: 1
+			y: Align.center
+			options:
+				time: .7
+				delay: .1 + (index / 30)
+				curve: Bezier(.05,1.05,.58,1.01)
 	
-	
+	for thumb, index in [thumbnail_1, thumbnail_2]
+		thumb.selectChild('box').animate
+			opacity: 1
+			y: Align.center
+			options:
+				time: 1
+				delay: .1 + (index / 10)
+				curve: Bezier(.05,1.05,.58,1.01)
+			
 # Nav toggle
 # ------------------------------------------------------------------
 toggleNav = () ->
@@ -424,10 +465,9 @@ toggleNav = () ->
 		showAux()
 		logo.animate('light')
 		jobTitle.animate('light')
-		border.animate('light')
 		
 		rotateAngleDown()
-# 		drawerAngle.animate('rotated')
+		hideContent()
 		
 		for item, index in navItems
 			showNavItem(item, index)
@@ -439,10 +479,9 @@ toggleNav = () ->
 		
 		changeLogo()
 		changeJobTitle()
-		changeBorder()
 		
 		rotateAngleUp()
-# 		drawerAngle.animate('initial')
+		showContent()
 		
 		mainTitle.animate('hidden')
 		auxDetails.animate('hidden')
