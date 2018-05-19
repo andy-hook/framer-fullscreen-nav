@@ -458,6 +458,9 @@ for bar in [bar_1, bar_2, crossbar_1, crossbar_2]
 	bar.originX = 0.5
 	bar.originY = 0.5
 	
+	bar.animationOptions =
+		curve: Bezier.ease
+	
 	bar.states =
 		dark:
 			backgroundColor: 'white'

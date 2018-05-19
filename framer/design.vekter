@@ -415,6 +415,21 @@
                           ],
                           "inlineStyleRanges" : [
                             {
+                              "length" : 19,
+                              "offset" : 0,
+                              "style" : "FONT:SoleilSb"
+                            },
+                            {
+                              "length" : 34,
+                              "offset" : 0,
+                              "style" : "SIZE:60"
+                            },
+                            {
+                              "length" : 15,
+                              "offset" : 19,
+                              "style" : "COLOR:#7F8188"
+                            },
+                            {
                               "length" : 34,
                               "offset" : 0,
                               "style" : "ALIGN:left"
@@ -443,21 +458,6 @@
                               "length" : 1,
                               "offset" : 18,
                               "style" : "COLOR:rgb(251, 252, 252)"
-                            },
-                            {
-                              "length" : 19,
-                              "offset" : 0,
-                              "style" : "FONT:SoleilSb"
-                            },
-                            {
-                              "length" : 34,
-                              "offset" : 0,
-                              "style" : "SIZE:60"
-                            },
-                            {
-                              "length" : 15,
-                              "offset" : 19,
-                              "style" : "COLOR:#7F8188"
                             }
                           ],
                           "key" : "5ftmf",
