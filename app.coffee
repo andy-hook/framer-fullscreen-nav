@@ -252,15 +252,6 @@ for item, index in reversedItems
 	
 	item.stateSwitch('initial')
 
-# Setup navicon
-navicon.states.closed =
-	opacity: .3
-	
-navicon.states.open =
-	opacity: 1
-
-navicon.stateSwitch('closed')
-
 # Show
 showNavItem = (item, i) ->
 
@@ -452,13 +443,123 @@ showContent = () ->
 				time: 1
 				delay: .1 + (index / 10)
 				curve: Bezier(.05,1.05,.58,1.01)
+
+
+# Icon animation
+# ------------------------------------------------------------------
+initialPos = {}
+
+naviconIcon.clip = false
+
+for bar in [bar_1, bar_2, crossbar_1, crossbar_2]
+	x = bar.x
+	y = bar.y
+	
+	bar.originX = 0.5
+	bar.originY = 0.5
+	
+	bar.states =
+		dark:
+			backgroundColor: 'white'
+		light:
+			backgroundColor: '1B1C26'
+		visible:
+			x: x
+			y: y
+			opacity: 1
+			scale: 1
 			
+	bar.stateSwitch('dark')
+	
+bar_1.states.hidden =
+	x: bar_1.states.visible.x - bar_1.width
+	opacity: 0
+	scale: 2
+
+bar_2.states.hidden =
+	x: bar_2.states.visible.x + bar_2.width
+	opacity: 0
+	scale: 2
+	
+crossbar_1.states.hidden =
+	x: crossbar_1.states.visible.x - (crossbar_1.width / 1.25)
+	y: crossbar_1.states.visible.y - (crossbar_1.width / 1.25)
+	opacity: 0
+	scale: 2
+
+crossbar_2.states.hidden =
+	x: crossbar_2.states.visible.x - (crossbar_2.width / 1.25)
+	y: crossbar_2.states.visible.y + (crossbar_2.width / 1.25)
+	opacity: 0
+	scale: 2
+
+bar_1.stateSwitch('visible')
+bar_2.stateSwitch('visible')
+crossbar_1.stateSwitch('hidden')
+crossbar_2.stateSwitch('hidden')
+
+naviconLight = () ->
+	Utils.delay .05, ->
+		if allowShow
+			for bar in [bar_1, bar_2, crossbar_1, crossbar_2]
+				bar.stateSwitch 'light'
+
+naviconDark = () ->
+	Utils.delay .3, ->
+		if !allowShow
+			for bar in [bar_1, bar_2, crossbar_1, crossbar_2]
+				bar.stateSwitch 'dark'
+
+naviconClosed = () ->
+	naviconDark()
+	
+	Utils.delay .175, ->
+		if !allowShow
+			speed = .25
+			delay = .15
+			
+			bar_1.animate 'visible',
+				time: speed
+				delay: delay
+				
+			bar_2.animate 'visible',
+				time: speed
+				delay: delay
+			
+			crossbar_1.animate 'hidden',
+				time: speed
+			
+			crossbar_2.animate 'hidden',
+				time: speed
+
+naviconOpen = () ->
+	naviconLight()
+	
+	speed = .25
+	delay = .15
+	
+	bar_1.animate 'hidden',
+		time: speed
+	bar_2.animate 'hidden',
+		time: speed
+	
+	crossbar_1.animate 'visible',
+		time: speed
+		delay: delay
+	
+	crossbar_2.animate 'visible',
+		time: speed
+		delay: delay
+
+
 # Nav toggle
 # ------------------------------------------------------------------
 toggleNav = () ->
 	if !navOpen
 		allowShow = true
 		navOpen = true
+		
+		naviconOpen()
 		
 		drawer.animate('open')
 		showMainTitle()
@@ -474,6 +575,8 @@ toggleNav = () ->
 	else 
 		allowShow = false
 		navOpen = false
+		
+		naviconClosed()
 		
 		drawer.animate('closed')
 		
