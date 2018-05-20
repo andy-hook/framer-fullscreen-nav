@@ -7,6 +7,9 @@ Framer.Device.customize
 	deviceImageHeight: 956
 	devicePixelRatio: 1
 
+# Set normal cursor
+document.body.style.cursor = "auto"
+
 navItems = [inferno, brandwatch, vizia, cymbiosis, monster, sketchbook]
 
 currentActive = []
@@ -49,15 +52,6 @@ changeLogo = () ->
 	Utils.delay .3, ->
 		if !allowShow
 			logo.animate('dark')
-
-border.states =
-	dark:
-		color: '#3E3E47'
-		animationOptions:
-			time: 0
-
-border.stateSwitch('dark')
-
 
 # Main navigation interactions
 # ------------------------------------------------------------------
@@ -424,6 +418,14 @@ hideContent = () ->
 			options:
 				time: .5
 				curve: Bezier(.05,1.05,.58,1.01)
+	
+	for number, index in [year_1, year_2, year_3, year_4]
+		number.animate
+			opacity: 0
+			y: Align.center(300)
+			options:
+				time: .5
+				curve: Bezier(.05,1.05,.58,1.01)
 
 showContent = () ->
 	for headline, index in [headline_3, headline_2, headline_1]
@@ -443,6 +445,15 @@ showContent = () ->
 				time: 1
 				delay: .1 + (index / 10)
 				curve: Bezier(.05,1.05,.58,1.01)
+	
+	for number, index in [year_1, year_2, year_3, year_4]
+		number.animate
+			opacity: 1
+			y: Align.center
+			options:
+				time: .8
+				delay: .1 + (index / 10)
+				curve: Bezier(.05,1.05,.58,1.01)
 
 
 # Icon animation
@@ -450,6 +461,32 @@ showContent = () ->
 initialPos = {}
 
 naviconIcon.clip = false
+
+hoverCircle.states =
+	initial:
+		scale: 1.3
+		opacity: 0
+		animationOptions:
+			time: .3
+	hovered:
+		scale: 1
+		opacity: .2
+		animationOptions:
+			time: .3
+	
+hoverCircle.stateSwitch 'initial'
+
+hoverCircleInner = hoverCircle.selectChild('Oval')
+
+hoverCircleInner.states =
+	dark:
+		stroke: 'white'
+	light:
+		stroke: '1B1C26'
+
+hoverCircleInner.stateSwitch 'dark'
+
+
 
 for bar in [bar_1, bar_2, crossbar_1, crossbar_2]
 	x = bar.x
@@ -504,12 +541,16 @@ crossbar_2.stateSwitch('hidden')
 naviconLight = () ->
 	Utils.delay .05, ->
 		if allowShow
+			hoverCircleInner.stateSwitch 'light'
+			
 			for bar in [bar_1, bar_2, crossbar_1, crossbar_2]
 				bar.stateSwitch 'light'
 
 naviconDark = () ->
 	Utils.delay .3, ->
 		if !allowShow
+			hoverCircleInner.stateSwitch 'dark'
+			
 			for bar in [bar_1, bar_2, crossbar_1, crossbar_2]
 				bar.stateSwitch 'dark'
 
@@ -596,6 +637,13 @@ toggleNav = () ->
 			hideNavItem(item, index)
 
 # Menu open / close
-navicon.on Events.MouseDown, (e, layer) ->
+navicon.on Events.MouseOver, ->
+	hoverCircle.animate 'hovered'
+	
+navicon.on Events.MouseOut, ->
+	hoverCircle.animate 'initial'
+	
+navicon.on Events.MouseDown, ->
 	toggleNav()
+
 	
