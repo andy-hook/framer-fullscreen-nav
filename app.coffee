@@ -7,9 +7,6 @@ Framer.Device.customize
 	deviceImageHeight: 956
 	devicePixelRatio: 1
 
-# Set normal cursor
-document.body.style.cursor = "auto"
-
 navItems = [inferno, brandwatch, vizia, cymbiosis, monster, sketchbook]
 
 currentActive = []
