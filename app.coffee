@@ -214,7 +214,7 @@ for socialButton, index in [twitter, dribbble, instagram, github, linkedin]
 
 reversedItems = navItems.reverse()
 navItemDelayIn = .02
-navItemStartIn = .05
+navItemStartIn = .04
 
 navItemDelayOut = .0
 navItemStartOut = .05
@@ -222,7 +222,7 @@ for item, index in reversedItems
 	
 	item.states.initial = 
 		opacity: 0
-		y: item.y - (index + 7 * 80)
+		y: item.y - (index + 7 * 100)
 		animationOptions:
 			time: .2
 			curve: Bezier(.05,1.05,.58,1.01)
@@ -592,6 +592,40 @@ naviconOpen = () ->
 		time: speed
 		delay: delay
 
+# Drawer skewing
+drawerSkew.states =
+	initial:
+		skewY: 0
+		animationOptions:
+			time: .3
+	skewedDown:
+		skewY: -10
+		animationOptions:
+			time: .15
+	skewedUp:
+		skewY: 5
+		animationOptions:
+			time: .4
+
+skewDown = () ->
+	drawerSkew.originX = 0
+	drawerSkew.originY = 1
+	
+	drawerSkew.animate 'skewedDown'
+	
+	Utils.delay .15, ->
+		if allowShow
+			drawerSkew.animate 'initial'
+
+skewUp = () ->
+	drawerSkew.originX = 1
+	drawerSkew.originY = 1
+	
+	drawerSkew.animate 'skewedUp'
+	
+	Utils.delay .3, ->
+		if !allowShow
+			drawerSkew.animate 'initial'
 
 # Nav toggle
 # ------------------------------------------------------------------
@@ -611,6 +645,8 @@ toggleNav = () ->
 		rotateAngleDown()
 		hideContent()
 		
+		skewDown()
+		
 		for item, index in navItems
 			showNavItem(item, index)
 	else 
@@ -629,6 +665,8 @@ toggleNav = () ->
 		
 		mainTitle.animate('hidden')
 		auxDetails.animate('hidden')
+		
+		skewUp()
 		
 		for item, index in currentActive
 			hideNavItem(item, index)
